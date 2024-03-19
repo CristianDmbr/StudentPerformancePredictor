@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-dataBase = pd.read_csv('Database/DatabaseTest.csv')
+dataBase = pd.read_csv('Database/Academic Database.csv')
 pd.set_option('display.max_columns', None)
 
 ####################################################################################
@@ -43,9 +43,6 @@ dataBase["Performance_Saber11"] = np.select(
     default='Fail'
 )
 
-print("Before : ")
-print(dataBase["SCHOOL_TYPE"].unique())
-
 ####################################################################################
 # Replace EDU_FATHER and EDU_MOTHER records of “Not sure” and “0” and “Ninguno” (meaning None) with “None”
 dataBase["EDU_FATHER"].replace({"Not sure": "None", "0": "None", "Ninguno": "None"}, inplace=True)
@@ -72,11 +69,3 @@ dataBase.drop(columns=['SCHOOL_NAME'],inplace=True)
 dataBase.drop(columns=['UNIVERSITY'], inplace=True)
 
 ####################################################################################
-
-#print("Categorical Features")
-#print("Numerical Features")
-#print(dataBase.select_dtypes(exclude=np.number).describe())
-#print(dataBase.select_dtypes(include=np.number).describe())
-
-print("Uniques after")
-print(dataBase["ACADEMIC_PROGRAM"].unique())
