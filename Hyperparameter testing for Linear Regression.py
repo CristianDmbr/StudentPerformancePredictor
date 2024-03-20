@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
 
 dataBase = pd.read_csv('Database/Academic Database.csv')
 pd.set_option('display.max_columns', None)
@@ -72,6 +72,13 @@ dataBase.drop(columns=['COD_S11', 'COD_SPRO', 'SCHOOL_NAME', 'UNIVERSITY', 'Unna
 
 ####################################################################################
 
+# Define the parameter grid
+param_grid = {
+    'C': [0.1, 1, 10, 100],
+    'gamma': [1, 0.1, 0.01, 0.001],
+    'kernel': ['rbf', 'linear', 'poly', 'sigmoid']
+}
+
 # Data Splitting:
 X_raw = dataBase[['GENDER', 'EDU_FATHER', 'EDU_MOTHER', 'OCC_FATHER', 'OCC_MOTHER',
        'STRATUM', 'SISBEN', 'PEOPLE_HOUSE', 'INTERNET', 'TV',
@@ -122,35 +129,47 @@ X_test_encoded = np.concatenate((X_test_numerical_imputed, X_test_categorical_en
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
+# Define the parameter grid
+param_grid = {
+    'fit_intercept': [True, False],
+    'normalize': [True, False]
+}
 
-clf = DecisionTreeClassifier(random_state=0,
-                             max_depth=7,
-                             min_samples_split=5,
-                             min_samples_leaf=1,
-                             ccp_alpha=0)
-clf.fit(X_train_scaled, y_train)
+# Instantiate the grid search
+grid_search = GridSearchCV(LinearRegression(), param_grid, cv=5, scoring='neg_mean_squared_error')
+
+# Perform the grid search
+grid_search.fit(X_train_scaled, y_train)
+
+# Print the best hyperparameters
+print("Best hyperparameters found:")
+print(grid_search.best_params_)
+print()
+
+# Print out the results of each hyperparameter
+print("Grid search results:")
+results = grid_search.cv_results_
+for mean_score, params in zip(results['mean_test_score'], results['params']):
+    print(f"Mean MSE: {-mean_score:.3f} with parameters: {params}")
+
+# Train Linear Regression model with best hyperparameters
+best_linear_reg = grid_search.best_estimator_
+best_linear_reg.fit(X_train_scaled, y_train)
 
 # Prediction variables
-y_pred_train = clf.predict(X_train_scaled)
-y_pred_test = clf.predict(X_test_scaled)
+y_pred_train = best_linear_reg.predict(X_train_scaled)
+y_pred_test = best_linear_reg.predict(X_test_scaled)
 
 # Metrics
-precision_train, recall_train, f1_score_train, _ = precision_recall_fscore_support(y_train, y_pred_train, average='weighted')
-precision_test, recall_test, f1_score_test, _ = precision_recall_fscore_support(y_test, y_pred_test, average='weighted')
+mse_train = mean_squared_error(y_train, y_pred_train)
+mse_test = mean_squared_error(y_test, y_pred_test)
+r2_train = r2_score(y_train, y_pred_train)
+r2_test = r2_score(y_test, y_pred_test)
 
+print("\nTraining Metrics with best hyperparameters:")
+print("Mean Squared Error (MSE) :", mse_train)
+print("R-squared (R2) :", r2_train)
 
-print("\nTraining Metrics:")
-print("Accuracy:", accuracy_score(y_train, y_pred_train))
-print("Classification Report:\n", classification_report(y_train, y_pred_train))
-print("Confusion Matrix:\n", confusion_matrix(y_train, y_pred_train))
-print("Precision :", precision_train)
-print("Recall :", recall_train)
-print("F1-Score :", f1_score_train)
-
-print("\nTesting Metrics:")
-print("Accuracy:", accuracy_score(y_test, y_pred_test))
-print("Classification Report:\n", classification_report(y_test, y_pred_test))
-print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_test))
-print("Precision :", precision_test)
-print("Recall :", recall_test)
-print("F1-Score :", f1_score_test)
+print("\nTesting Metrics with best hyperparameters:")
+print("Mean Squared Error (MSE) :", mse_test)
+print("R-squared (R2) :", r2_test)

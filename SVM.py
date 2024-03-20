@@ -3,8 +3,9 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
+
 
 dataBase = pd.read_csv('Database/Academic Database.csv')
 pd.set_option('display.max_columns', None)
@@ -123,11 +124,8 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
-clf = DecisionTreeClassifier(random_state=0,
-                             max_depth=7,
-                             min_samples_split=5,
-                             min_samples_leaf=1,
-                             ccp_alpha=0)
+# Train SVM classifier
+clf = SVC(kernel='linear',C=10,gamma = 1, random_state=0)
 clf.fit(X_train_scaled, y_train)
 
 # Prediction variables

@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.svm import SVC
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
 
 dataBase = pd.read_csv('Database/Academic Database.csv')
@@ -72,6 +72,13 @@ dataBase.drop(columns=['COD_S11', 'COD_SPRO', 'SCHOOL_NAME', 'UNIVERSITY', 'Unna
 
 ####################################################################################
 
+# Define the parameter grid
+param_grid = {
+    'C': [0.1, 1, 10, 100],
+    'gamma': [1, 0.1, 0.01, 0.001],
+    'kernel': ['rbf', 'linear', 'poly', 'sigmoid']
+}
+
 # Data Splitting:
 X_raw = dataBase[['GENDER', 'EDU_FATHER', 'EDU_MOTHER', 'OCC_FATHER', 'OCC_MOTHER',
        'STRATUM', 'SISBEN', 'PEOPLE_HOUSE', 'INTERNET', 'TV',
@@ -123,23 +130,36 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
-clf = DecisionTreeClassifier(random_state=0,
-                             max_depth=7,
-                             min_samples_split=5,
-                             min_samples_leaf=1,
-                             ccp_alpha=0)
-clf.fit(X_train_scaled, y_train)
+# Instantiate the grid search
+grid_search = GridSearchCV(SVC(random_state=0), param_grid, cv=5, scoring='accuracy')
+
+# Perform the grid search
+grid_search.fit(X_train_scaled, y_train)
+
+# Print the best hyperparameters
+print("Best hyperparameters found:")
+print(grid_search.best_params_)
+print()
+
+# Print out the results of each hyperparameter
+print("Grid search results:")
+results = grid_search.cv_results_
+for mean_score, params in zip(results['mean_test_score'], results['params']):
+    print(f"Mean accuracy: {mean_score:.3f} with parameters: {params}")
+
+# Train SVM classifier with best hyperparameters
+best_clf = grid_search.best_estimator_
+best_clf.fit(X_train_scaled, y_train)
 
 # Prediction variables
-y_pred_train = clf.predict(X_train_scaled)
-y_pred_test = clf.predict(X_test_scaled)
+y_pred_train = best_clf.predict(X_train_scaled)
+y_pred_test = best_clf.predict(X_test_scaled)
 
 # Metrics
 precision_train, recall_train, f1_score_train, _ = precision_recall_fscore_support(y_train, y_pred_train, average='weighted')
 precision_test, recall_test, f1_score_test, _ = precision_recall_fscore_support(y_test, y_pred_test, average='weighted')
 
-
-print("\nTraining Metrics:")
+print("\nTraining Metrics with best hyperparameters:")
 print("Accuracy:", accuracy_score(y_train, y_pred_train))
 print("Classification Report:\n", classification_report(y_train, y_pred_train))
 print("Confusion Matrix:\n", confusion_matrix(y_train, y_pred_train))
@@ -147,7 +167,7 @@ print("Precision :", precision_train)
 print("Recall :", recall_train)
 print("F1-Score :", f1_score_train)
 
-print("\nTesting Metrics:")
+print("\nTesting Metrics with best hyperparameters:")
 print("Accuracy:", accuracy_score(y_test, y_pred_test))
 print("Classification Report:\n", classification_report(y_test, y_pred_test))
 print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_test))

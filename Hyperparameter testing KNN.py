@@ -3,8 +3,9 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
+from sklearn.model_selection import GridSearchCV
 
 dataBase = pd.read_csv('Database/Academic Database.csv')
 pd.set_option('display.max_columns', None)
@@ -123,34 +124,55 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
-clf = DecisionTreeClassifier(random_state=0,
-                             max_depth=7,
-                             min_samples_split=5,
-                             min_samples_leaf=1,
-                             ccp_alpha=0)
-clf.fit(X_train_scaled, y_train)
+# Define the parameter grid for KNN
+param_grid_knn = {
+    'n_neighbors': [3, 5, 7, 9],  # Number of neighbors
+    'weights': ['uniform', 'distance'],  # Weight function used in prediction
+    'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute'],  # Algorithm used to compute the nearest neighbors
+    'p': [1, 2]  # Power parameter for the Minkowski metric (1 for Manhattan distance, 2 for Euclidean distance)
+}
 
-# Prediction variables
-y_pred_train = clf.predict(X_train_scaled)
-y_pred_test = clf.predict(X_test_scaled)
+# Instantiate the grid search for KNN
+grid_search_knn = GridSearchCV(KNeighborsClassifier(), param_grid_knn, cv=5, scoring='accuracy')
 
-# Metrics
-precision_train, recall_train, f1_score_train, _ = precision_recall_fscore_support(y_train, y_pred_train, average='weighted')
-precision_test, recall_test, f1_score_test, _ = precision_recall_fscore_support(y_test, y_pred_test, average='weighted')
+# Perform the grid search for KNN
+grid_search_knn.fit(X_train_scaled, y_train)
 
+# Print the best hyperparameters for KNN
+print("Best hyperparameters found for KNN:")
+print(grid_search_knn.best_params_)
+print()
 
-print("\nTraining Metrics:")
-print("Accuracy:", accuracy_score(y_train, y_pred_train))
-print("Classification Report:\n", classification_report(y_train, y_pred_train))
-print("Confusion Matrix:\n", confusion_matrix(y_train, y_pred_train))
-print("Precision :", precision_train)
-print("Recall :", recall_train)
-print("F1-Score :", f1_score_train)
+# Print out the results of each hyperparameter for KNN
+print("Grid search results for KNN:")
+results_knn = grid_search_knn.cv_results_
+for mean_score, params in zip(results_knn['mean_test_score'], results_knn['params']):
+    print(f"Mean accuracy: {mean_score:.3f} with parameters: {params}")
 
-print("\nTesting Metrics:")
-print("Accuracy:", accuracy_score(y_test, y_pred_test))
-print("Classification Report:\n", classification_report(y_test, y_pred_test))
-print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_test))
-print("Precision :", precision_test)
-print("Recall :", recall_test)
-print("F1-Score :", f1_score_test)
+# Train KNN classifier with best hyperparameters
+best_clf_knn = grid_search_knn.best_estimator_
+best_clf_knn.fit(X_train_scaled, y_train)
+
+# Prediction variables for KNN with best hyperparameters
+y_pred_train_knn_best = best_clf_knn.predict(X_train_scaled)
+y_pred_test_knn_best = best_clf_knn.predict(X_test_scaled)
+
+# Metrics for KNN with best hyperparameters
+precision_train_knn_best, recall_train_knn_best, f1_score_train_knn_best, _ = precision_recall_fscore_support(y_train, y_pred_train_knn_best, average='weighted')
+precision_test_knn_best, recall_test_knn_best, f1_score_test_knn_best, _ = precision_recall_fscore_support(y_test, y_pred_test_knn_best, average='weighted')
+
+print("\nTraining Metrics for KNN with best hyperparameters:")
+print("Accuracy:", accuracy_score(y_train, y_pred_train_knn_best))
+print("Classification Report:\n", classification_report(y_train, y_pred_train_knn_best))
+print("Confusion Matrix:\n", confusion_matrix(y_train, y_pred_train_knn_best))
+print("Precision :", precision_train_knn_best)
+print("Recall :", recall_train_knn_best)
+print("F1-Score :", f1_score_train_knn_best)
+
+print("\nTesting Metrics for KNN with best hyperparameters:")
+print("Accuracy:", accuracy_score(y_test, y_pred_test_knn_best))
+print("Classification Report:\n", classification_report(y_test, y_pred_test_knn_best))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_test_knn_best))
+print("Precision :", precision_test_knn_best)
+print("Recall :", recall_test_knn_best)
+print("F1-Score :", f1_score_test_knn_best)

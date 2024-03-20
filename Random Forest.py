@@ -3,8 +3,9 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
+from sklearn.ensemble import RandomForestClassifier
+
 
 dataBase = pd.read_csv('Database/Academic Database.csv')
 pd.set_option('display.max_columns', None)
@@ -123,34 +124,30 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
-clf = DecisionTreeClassifier(random_state=0,
-                             max_depth=7,
-                             min_samples_split=5,
-                             min_samples_leaf=1,
-                             ccp_alpha=0)
-clf.fit(X_train_scaled, y_train)
+# Train Random Forest classifier
+clf_rf = RandomForestClassifier(n_estimators=100, random_state=0)
+clf_rf.fit(X_train_scaled, y_train)
 
-# Prediction variables
-y_pred_train = clf.predict(X_train_scaled)
-y_pred_test = clf.predict(X_test_scaled)
+# Prediction variables for Random Forest
+y_pred_train_rf = clf_rf.predict(X_train_scaled)
+y_pred_test_rf = clf_rf.predict(X_test_scaled)
 
-# Metrics
-precision_train, recall_train, f1_score_train, _ = precision_recall_fscore_support(y_train, y_pred_train, average='weighted')
-precision_test, recall_test, f1_score_test, _ = precision_recall_fscore_support(y_test, y_pred_test, average='weighted')
+# Metrics for Random Forest
+precision_train_rf, recall_train_rf, f1_score_train_rf, _ = precision_recall_fscore_support(y_train, y_pred_train_rf, average='weighted')
+precision_test_rf, recall_test_rf, f1_score_test_rf, _ = precision_recall_fscore_support(y_test, y_pred_test_rf, average='weighted')
 
+print("\nTraining Metrics for Random Forest:")
+print("Accuracy:", accuracy_score(y_train, y_pred_train_rf))
+print("Classification Report:\n", classification_report(y_train, y_pred_train_rf))
+print("Confusion Matrix:\n", confusion_matrix(y_train, y_pred_train_rf))
+print("Precision :", precision_train_rf)
+print("Recall :", recall_train_rf)
+print("F1-Score :", f1_score_train_rf)
 
-print("\nTraining Metrics:")
-print("Accuracy:", accuracy_score(y_train, y_pred_train))
-print("Classification Report:\n", classification_report(y_train, y_pred_train))
-print("Confusion Matrix:\n", confusion_matrix(y_train, y_pred_train))
-print("Precision :", precision_train)
-print("Recall :", recall_train)
-print("F1-Score :", f1_score_train)
-
-print("\nTesting Metrics:")
-print("Accuracy:", accuracy_score(y_test, y_pred_test))
-print("Classification Report:\n", classification_report(y_test, y_pred_test))
-print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_test))
-print("Precision :", precision_test)
-print("Recall :", recall_test)
-print("F1-Score :", f1_score_test)
+print("\nTesting Metrics for Random Forest:")
+print("Accuracy:", accuracy_score(y_test, y_pred_test_rf))
+print("Classification Report:\n", classification_report(y_test, y_pred_test_rf))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_test_rf))
+print("Precision :", precision_test_rf)
+print("Recall :", recall_test_rf)
+print("F1-Score :", f1_score_test_rf)

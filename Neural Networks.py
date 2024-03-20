@@ -3,8 +3,9 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
+
 
 dataBase = pd.read_csv('Database/Academic Database.csv')
 pd.set_option('display.max_columns', None)
@@ -123,34 +124,30 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
-clf = DecisionTreeClassifier(random_state=0,
-                             max_depth=7,
-                             min_samples_split=5,
-                             min_samples_leaf=1,
-                             ccp_alpha=0)
-clf.fit(X_train_scaled, y_train)
+# Train neural network classifier
+clf_nn = MLPClassifier(hidden_layer_sizes=(100, 50), activation='relu', solver='adam', random_state=0)
+clf_nn.fit(X_train_scaled, y_train)
 
-# Prediction variables
-y_pred_train = clf.predict(X_train_scaled)
-y_pred_test = clf.predict(X_test_scaled)
+# Prediction variables for neural network
+y_pred_train_nn = clf_nn.predict(X_train_scaled)
+y_pred_test_nn = clf_nn.predict(X_test_scaled)
 
-# Metrics
-precision_train, recall_train, f1_score_train, _ = precision_recall_fscore_support(y_train, y_pred_train, average='weighted')
-precision_test, recall_test, f1_score_test, _ = precision_recall_fscore_support(y_test, y_pred_test, average='weighted')
+# Metrics for neural network
+precision_train_nn, recall_train_nn, f1_score_train_nn, _ = precision_recall_fscore_support(y_train, y_pred_train_nn, average='weighted')
+precision_test_nn, recall_test_nn, f1_score_test_nn, _ = precision_recall_fscore_support(y_test, y_pred_test_nn, average='weighted')
 
+print("\nTraining Metrics for Neural Network:")
+print("Accuracy:", accuracy_score(y_train, y_pred_train_nn))
+print("Classification Report:\n", classification_report(y_train, y_pred_train_nn))
+print("Confusion Matrix:\n", confusion_matrix(y_train, y_pred_train_nn))
+print("Precision :", precision_train_nn)
+print("Recall :", recall_train_nn)
+print("F1-Score :", f1_score_train_nn)
 
-print("\nTraining Metrics:")
-print("Accuracy:", accuracy_score(y_train, y_pred_train))
-print("Classification Report:\n", classification_report(y_train, y_pred_train))
-print("Confusion Matrix:\n", confusion_matrix(y_train, y_pred_train))
-print("Precision :", precision_train)
-print("Recall :", recall_train)
-print("F1-Score :", f1_score_train)
-
-print("\nTesting Metrics:")
-print("Accuracy:", accuracy_score(y_test, y_pred_test))
-print("Classification Report:\n", classification_report(y_test, y_pred_test))
-print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_test))
-print("Precision :", precision_test)
-print("Recall :", recall_test)
-print("F1-Score :", f1_score_test)
+print("\nTesting Metrics for Neural Network:")
+print("Accuracy:", accuracy_score(y_test, y_pred_test_nn))
+print("Classification Report:\n", classification_report(y_test, y_pred_test_nn))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_test_nn))
+print("Precision :", precision_test_nn)
+print("Recall :", recall_test_nn)
+print("F1-Score :", f1_score_test_nn)

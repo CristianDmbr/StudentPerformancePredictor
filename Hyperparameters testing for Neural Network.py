@@ -2,8 +2,10 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.model_selection import GridSearchCV
+from sklearn.neural_network import MLPClassifier
+
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
 
 dataBase = pd.read_csv('Database/Academic Database.csv')
@@ -72,6 +74,13 @@ dataBase.drop(columns=['COD_S11', 'COD_SPRO', 'SCHOOL_NAME', 'UNIVERSITY', 'Unna
 
 ####################################################################################
 
+# Define the parameter grid
+param_grid = {
+    'C': [0.1, 1, 10, 100],
+    'gamma': [1, 0.1, 0.01, 0.001],
+    'kernel': ['rbf', 'linear', 'poly', 'sigmoid']
+}
+
 # Data Splitting:
 X_raw = dataBase[['GENDER', 'EDU_FATHER', 'EDU_MOTHER', 'OCC_FATHER', 'OCC_MOTHER',
        'STRATUM', 'SISBEN', 'PEOPLE_HOUSE', 'INTERNET', 'TV',
@@ -123,34 +132,54 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
-clf = DecisionTreeClassifier(random_state=0,
-                             max_depth=7,
-                             min_samples_split=5,
-                             min_samples_leaf=1,
-                             ccp_alpha=0)
-clf.fit(X_train_scaled, y_train)
+# Define the parameter grid for the neural network
+param_grid_nn = {
+    'hidden_layer_sizes': [(100,), (100, 50), (50, 50)],
+    'activation': ['relu', 'logistic'],
+    'solver': ['adam', 'sgd'],
+}
 
-# Prediction variables
-y_pred_train = clf.predict(X_train_scaled)
-y_pred_test = clf.predict(X_test_scaled)
+# Instantiate the grid search for the neural network
+grid_search_nn = GridSearchCV(MLPClassifier(random_state=0), param_grid_nn, cv=5, scoring='accuracy')
 
-# Metrics
-precision_train, recall_train, f1_score_train, _ = precision_recall_fscore_support(y_train, y_pred_train, average='weighted')
-precision_test, recall_test, f1_score_test, _ = precision_recall_fscore_support(y_test, y_pred_test, average='weighted')
+# Perform the grid search for the neural network
+grid_search_nn.fit(X_train_scaled, y_train)
 
+# Print the best hyperparameters for the neural network
+print("Best hyperparameters found for Neural Network:")
+print(grid_search_nn.best_params_)
+print()
 
-print("\nTraining Metrics:")
-print("Accuracy:", accuracy_score(y_train, y_pred_train))
-print("Classification Report:\n", classification_report(y_train, y_pred_train))
-print("Confusion Matrix:\n", confusion_matrix(y_train, y_pred_train))
-print("Precision :", precision_train)
-print("Recall :", recall_train)
-print("F1-Score :", f1_score_train)
+# Print out the results of each hyperparameter for the neural network
+print("Grid search results for Neural Network:")
+results_nn = grid_search_nn.cv_results_
+for mean_score, params in zip(results_nn['mean_test_score'], results_nn['params']):
+    print(f"Mean accuracy: {mean_score:.3f} with parameters: {params}")
 
-print("\nTesting Metrics:")
-print("Accuracy:", accuracy_score(y_test, y_pred_test))
-print("Classification Report:\n", classification_report(y_test, y_pred_test))
-print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_test))
-print("Precision :", precision_test)
-print("Recall :", recall_test)
-print("F1-Score :", f1_score_test)
+# Train neural network classifier with best hyperparameters
+best_clf_nn = grid_search_nn.best_estimator_
+best_clf_nn.fit(X_train_scaled, y_train)
+
+# Prediction variables for neural network
+y_pred_train_nn = best_clf_nn.predict(X_train_scaled)
+y_pred_test_nn = best_clf_nn.predict(X_test_scaled)
+
+# Metrics for neural network
+precision_train_nn, recall_train_nn, f1_score_train_nn, _ = precision_recall_fscore_support(y_train, y_pred_train_nn, average='weighted')
+precision_test_nn, recall_test_nn, f1_score_test_nn, _ = precision_recall_fscore_support(y_test, y_pred_test_nn, average='weighted')
+
+print("\nTraining Metrics for Neural Network with best hyperparameters:")
+print("Accuracy:", accuracy_score(y_train, y_pred_train_nn))
+print("Classification Report:\n", classification_report(y_train, y_pred_train_nn))
+print("Confusion Matrix:\n", confusion_matrix(y_train, y_pred_train_nn))
+print("Precision :", precision_train_nn)
+print("Recall :", recall_train_nn)
+print("F1-Score :", f1_score_train_nn)
+
+print("\nTesting Metrics for Neural Network with best hyperparameters:")
+print("Accuracy:", accuracy_score(y_test, y_pred_test_nn))
+print("Classification Report:\n", classification_report(y_test, y_pred_test_nn))
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_test_nn))
+print("Precision :", precision_test_nn)
+print("Recall :", recall_test_nn)
+print("F1-Score :", f1_score_test_nn)

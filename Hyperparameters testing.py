@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
 
@@ -123,21 +123,37 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
-clf = DecisionTreeClassifier(random_state=0,
-                             max_depth=7,
-                             min_samples_split=5,
-                             min_samples_leaf=1,
-                             ccp_alpha=0)
-clf.fit(X_train_scaled, y_train)
+# Define parameter grid
+param_grid = {
+    'max_depth': [3, 5, 7, 9, 11],
+    'min_samples_split': [2, 5, 10],
+    'min_samples_leaf': [1, 2, 4],
+    'ccp_alpha': [0, 0.001, 0.01, 0.1, 1]
+}
+
+# Create GridSearchCV object
+grid_search = GridSearchCV(estimator=DecisionTreeClassifier(random_state=0), param_grid=param_grid, cv=5)
+
+# Fit GridSearchCV
+grid_search.fit(X_train_scaled, y_train)
+
+# Get best parameters
+best_params = grid_search.best_params_
+print("Best Parameters:", best_params)
+
+# Print out the results of each hyperparameter
+print("Grid search results:")
+results = grid_search.cv_results_
+for mean_score, params in zip(results['mean_test_score'], results['params']):
+    print(f"Mean accuracy: {mean_score:.3f} with parameters: {params}")
 
 # Prediction variables
-y_pred_train = clf.predict(X_train_scaled)
-y_pred_test = clf.predict(X_test_scaled)
+y_pred_train = grid_search.predict(X_train_scaled)
+y_pred_test = grid_search.predict(X_test_scaled)
 
 # Metrics
 precision_train, recall_train, f1_score_train, _ = precision_recall_fscore_support(y_train, y_pred_train, average='weighted')
 precision_test, recall_test, f1_score_test, _ = precision_recall_fscore_support(y_test, y_pred_test, average='weighted')
-
 
 print("\nTraining Metrics:")
 print("Accuracy:", accuracy_score(y_train, y_pred_train))
