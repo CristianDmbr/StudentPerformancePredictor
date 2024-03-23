@@ -1,10 +1,11 @@
-import numpy as np
-import pandas as pd
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.preprocessing import LabelEncoder
+import numpy as np
+import pandas as pd
 
 # Load the dataset
 dataBase = pd.read_csv('Database/Academic Database.csv')
@@ -48,11 +49,12 @@ dataBase["Performance_Saber11"] = np.select(
 # Replace records
 dataBase["EDU_FATHER"].replace({"Not sure": "None", "0": "None", "Ninguno": "None"}, inplace=True)
 dataBase["EDU_MOTHER"].replace({"Not sure": "None", "0": "None", "Ninguno": "None"}, inplace=True)
-dataBase["OCC_FATHER"].replace({"0": "Unemployed", "Home" : "Unemployed", "Retired": "Unemployed"}, inplace=True)
-dataBase["OCC_MOTHER"].replace({"0": "Unemployed", "Home" : "Unemployed", "Retired": "Unemployed"}, inplace=True)
-dataBase["SISBEN"].replace({"Esta clasificada en otro Level del SISBEN" : "It is classified in another SISBEN Level"}, inplace=True)
-dataBase["PEOPLE_HOUSE"].replace({"Nueve" : "Nine", "Once" : "Eleven"}, inplace=True)
-dataBase["JOB"].replace({"No":"0 hours per week","0":"0 hours per week"}, inplace=True)
+dataBase["OCC_FATHER"].replace({"0": "Unemployed", "Home": "Unemployed", "Retired": "Unemployed"}, inplace=True)
+dataBase["OCC_MOTHER"].replace({"0": "Unemployed", "Home": "Unemployed", "Retired": "Unemployed"}, inplace=True)
+dataBase["SISBEN"].replace({"Esta clasificada en otro Level del SISBEN": "It is classified in another SISBEN Level"},
+                           inplace=True)
+dataBase["PEOPLE_HOUSE"].replace({"Nueve": "Nine", "Once": "Eleven"}, inplace=True)
+dataBase["JOB"].replace({"No": "0 hours per week", "0": "0 hours per week"}, inplace=True)
 
 # Remove unnecessary features
 dataBase.drop(columns=['COD_S11', 'COD_SPRO', 'SCHOOL_NAME', 'UNIVERSITY', 'Unnamed: 9'], inplace=True)
@@ -67,7 +69,7 @@ X_raw = dataBase[['GENDER', 'EDU_FATHER', 'EDU_MOTHER', 'OCC_FATHER', 'OCC_MOTHE
        'PERCENTILE', '2ND_DECILE', 'QUARTILE', 'SEL', 'SEL_IHE',
        'Average_Score_SABER_PRO','Average_Score_Saber11', 'Performance_Saber11']]
 
-y_raw = dataBase["Average_Score_SABER_PRO"]
+y_raw = dataBase["Performance_SABER_PRO"]
 X_train_raw, X_test_raw, y_train, y_test = train_test_split(X_raw, y_raw, test_size=0.20, random_state=0)
 
 # Identify columns with missing values
@@ -107,20 +109,26 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
-# Train Linear Regression model
-linear_reg = LinearRegression()
-linear_reg.fit(X_train_scaled, y_train)
+# Apply Label Encoding to the target variable
+label_encoder = LabelEncoder()
+y_train_encoded = label_encoder.fit_transform(y_train)
+y_test_encoded = label_encoder.transform(y_test) 
+
+# Train Linear Regression model with best hyperparameters found
+linear_reg = LinearRegression(fit_intercept= True) 
+linear_reg.fit(X_train_scaled, y_train_encoded)
 
 # Prediction variables
 y_pred_train = linear_reg.predict(X_train_scaled)
 y_pred_test = linear_reg.predict(X_test_scaled)
 
 # Metrics
-mse_train = mean_squared_error(y_train, y_pred_train)
-mse_test = mean_squared_error(y_test, y_pred_test)
-r2_train = r2_score(y_train, y_pred_train)
-r2_test = r2_score(y_test, y_pred_test)
+mse_train = mean_squared_error(y_train_encoded, y_pred_train)
+mse_test = mean_squared_error(y_test_encoded, y_pred_test)
+r2_train = r2_score(y_train_encoded, y_pred_train)
+r2_test = r2_score(y_test_encoded, y_pred_test)
 
+# Print out the results
 print("\nTraining Metrics:")
 print("Mean Squared Error (MSE) :", mse_train)
 print("R-squared (R2) :", r2_train)

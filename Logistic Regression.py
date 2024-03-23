@@ -111,7 +111,11 @@ X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
 # Train Logistic Regression model
-logistic_reg = LogisticRegression()
+logistic_reg = LogisticRegression(C = 0.1,
+                                  max_iter = 200,
+                                  penalty = "l1",
+                                  solver = "liblinear",
+)
 logistic_reg.fit(X_train_scaled, y_train)
 
 # Prediction variables
@@ -135,4 +139,3 @@ print("\nTesting Metrics:")
 print("Accuracy :", accuracy_test)
 print("Confusion Matrix :\n", conf_matrix_test)
 print("Classification Report :\n", class_report_test)
-

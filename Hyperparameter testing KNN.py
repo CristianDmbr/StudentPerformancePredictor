@@ -1,11 +1,10 @@
 import numpy as np
 import pandas as pd
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, LabelEncoder
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
-from sklearn.model_selection import GridSearchCV
 
 dataBase = pd.read_csv('Database/Academic Database.csv')
 pd.set_option('display.max_columns', None)
@@ -86,6 +85,11 @@ X_raw = dataBase[['GENDER', 'EDU_FATHER', 'EDU_MOTHER', 'OCC_FATHER', 'OCC_MOTHE
 y_raw = dataBase["Performance_SABER_PRO"]
 X_train_raw, X_test_raw, y_train, y_test = train_test_split(X_raw, y_raw, test_size=0.20, shuffle=True, random_state=0)
 
+# Encode target variable
+label_encoder = LabelEncoder()
+y_train_encoded = label_encoder.fit_transform(y_train)
+y_test_encoded = label_encoder.transform(y_test)
+
 # Identify columns with missing values
 missing_columns = X_train_raw.columns[X_train_raw.isnull().any()]
 
@@ -136,7 +140,7 @@ param_grid_knn = {
 grid_search_knn = GridSearchCV(KNeighborsClassifier(), param_grid_knn, cv=5, scoring='accuracy')
 
 # Perform the grid search for KNN
-grid_search_knn.fit(X_train_scaled, y_train)
+grid_search_knn.fit(X_train_scaled, y_train_encoded)
 
 # Print the best hyperparameters for KNN
 print("Best hyperparameters found for KNN:")
@@ -151,28 +155,28 @@ for mean_score, params in zip(results_knn['mean_test_score'], results_knn['param
 
 # Train KNN classifier with best hyperparameters
 best_clf_knn = grid_search_knn.best_estimator_
-best_clf_knn.fit(X_train_scaled, y_train)
+best_clf_knn.fit(X_train_scaled, y_train_encoded)
 
 # Prediction variables for KNN with best hyperparameters
 y_pred_train_knn_best = best_clf_knn.predict(X_train_scaled)
 y_pred_test_knn_best = best_clf_knn.predict(X_test_scaled)
 
 # Metrics for KNN with best hyperparameters
-precision_train_knn_best, recall_train_knn_best, f1_score_train_knn_best, _ = precision_recall_fscore_support(y_train, y_pred_train_knn_best, average='weighted')
-precision_test_knn_best, recall_test_knn_best, f1_score_test_knn_best, _ = precision_recall_fscore_support(y_test, y_pred_test_knn_best, average='weighted')
+precision_train_knn_best, recall_train_knn_best, f1_score_train_knn_best, _ = precision_recall_fscore_support(y_train_encoded, y_pred_train_knn_best, average='weighted')
+precision_test_knn_best, recall_test_knn_best, f1_score_test_knn_best, _ = precision_recall_fscore_support(y_test_encoded, y_pred_test_knn_best, average='weighted')
 
 print("\nTraining Metrics for KNN with best hyperparameters:")
-print("Accuracy:", accuracy_score(y_train, y_pred_train_knn_best))
-print("Classification Report:\n", classification_report(y_train, y_pred_train_knn_best))
-print("Confusion Matrix:\n", confusion_matrix(y_train, y_pred_train_knn_best))
+print("Accuracy:", accuracy_score(y_train_encoded, y_pred_train_knn_best))
+print("Classification Report:\n", classification_report(y_train_encoded, y_pred_train_knn_best))
+print("Confusion Matrix:\n", confusion_matrix(y_train_encoded, y_pred_train_knn_best))
 print("Precision :", precision_train_knn_best)
 print("Recall :", recall_train_knn_best)
 print("F1-Score :", f1_score_train_knn_best)
 
 print("\nTesting Metrics for KNN with best hyperparameters:")
-print("Accuracy:", accuracy_score(y_test, y_pred_test_knn_best))
-print("Classification Report:\n", classification_report(y_test, y_pred_test_knn_best))
-print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_test_knn_best))
+print("Accuracy:", accuracy_score(y_test_encoded, y_pred_test_knn_best))
+print("Classification Report:\n", classification_report(y_test_encoded, y_pred_test_knn_best))
+print("Confusion Matrix:\n", confusion_matrix(y_test_encoded, y_pred_test_knn_best))
 print("Precision :", precision_test_knn_best)
 print("Recall :", recall_test_knn_best)
 print("F1-Score :", f1_score_test_knn_best)

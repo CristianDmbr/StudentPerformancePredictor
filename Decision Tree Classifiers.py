@@ -124,8 +124,8 @@ X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
 clf = DecisionTreeClassifier(random_state=0,
-                             max_depth=7,
-                             min_samples_split=5,
+                             max_depth=5,
+                             min_samples_split=2,
                              min_samples_leaf=1,
                              ccp_alpha=0)
 clf.fit(X_train_scaled, y_train)

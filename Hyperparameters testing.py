@@ -118,7 +118,7 @@ X_test_categorical_encoded = encoder.transform(X_test_categorical_imputed)
 X_train_encoded = np.concatenate((X_train_numerical_imputed, X_train_categorical_encoded.toarray()), axis=1)
 X_test_encoded = np.concatenate((X_test_numerical_imputed, X_test_categorical_encoded.toarray()), axis=1)
 
-# Scale numerical features
+# Standardisation numerical features
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)

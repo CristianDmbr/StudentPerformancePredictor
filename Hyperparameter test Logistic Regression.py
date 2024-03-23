@@ -68,7 +68,6 @@ X_raw = dataBase[['GENDER', 'EDU_FATHER', 'EDU_MOTHER', 'OCC_FATHER', 'OCC_MOTHE
        'Average_Score_SABER_PRO','Average_Score_Saber11', 'Performance_Saber11']]
 
 y_raw = dataBase["Performance_SABER_PRO"]
-
 # Modify target variable for classification
 y_raw = y_raw.apply(lambda x: 1 if x in ['Best', 'Very Good', 'Good', 'Pass'] else 0)
 
@@ -111,14 +110,13 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
-# Define the parameter grid
+# Define grid with adjusted max_iter values and potentially different solvers
 param_grid = {
-    'C': [0.1, 1, 10, 100],
+    'C': [0.01, 0.1, 1, 10, 100],
     'penalty': ['l1', 'l2'],
-    'solver': ['liblinear', 'saga'], 
-    'max_iter': [100, 200, 300, 400]
+    'solver': ['liblinear', 'saga', 'lbfgs', 'newton-cg'], 
+    'max_iter': [100, 200, 500]
 }
-
 
 # Instantiate the grid search
 grid_search = GridSearchCV(LogisticRegression(), param_grid, cv=5, scoring='accuracy')
@@ -126,16 +124,16 @@ grid_search = GridSearchCV(LogisticRegression(), param_grid, cv=5, scoring='accu
 # Perform the grid search
 grid_search.fit(X_train_scaled, y_train)
 
-# Print the best hyperparameters
-print("Best hyperparameters found:")
-print(grid_search.best_params_)
-print()
-
-# Print out the results of each hyperparameter
+# Print out the results of each hyperparameter setting
 print("Grid search results:")
 results = grid_search.cv_results_
 for mean_score, params in zip(results['mean_test_score'], results['params']):
     print(f"Mean accuracy: {mean_score:.3f} with parameters: {params}")
+
+# Print the best hyperparameters
+print("\nBest hyperparameters found:")
+print(grid_search.best_params_)
+print()
 
 # Train Logistic Regression classifier with best hyperparameters
 best_clf = grid_search.best_estimator_
@@ -153,6 +151,7 @@ conf_matrix_test = confusion_matrix(y_test, y_pred_test)
 class_report_train = classification_report(y_train, y_pred_train)
 class_report_test = classification_report(y_test, y_pred_test)
 
+# Print metrics with best hyperparameters
 print("\nTraining Metrics with best hyperparameters:")
 print("Accuracy:", accuracy_train)
 print("Confusion Matrix:\n", conf_matrix_train)

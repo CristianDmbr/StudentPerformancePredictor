@@ -125,7 +125,10 @@ X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
 # Train KNN classifier
-clf_knn = KNeighborsClassifier(n_neighbors=5)  # You can adjust the number of neighbors as per your requirement
+clf_knn = KNeighborsClassifier(algorithm = "auto",
+                               n_neighbors = 9,
+                                p = 1,
+                                weights = "distance")  # You can adjust the number of neighbors as per your requirement
 clf_knn.fit(X_train_scaled, y_train)
 
 # Prediction variables for KNN

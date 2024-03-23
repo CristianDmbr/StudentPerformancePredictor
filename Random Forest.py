@@ -125,7 +125,11 @@ X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
 # Train Random Forest classifier
-clf_rf = RandomForestClassifier(n_estimators=100, random_state=0)
+clf_rf = RandomForestClassifier(bootstrap = False,
+                                max_depth = 20,
+                                min_samples_leaf = 1,
+                                min_samples_split = 5,
+                                n_estimators = 50)
 clf_rf.fit(X_train_scaled, y_train)
 
 # Prediction variables for Random Forest

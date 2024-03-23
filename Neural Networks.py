@@ -125,7 +125,10 @@ X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
 # Train neural network classifier
-clf_nn = MLPClassifier(hidden_layer_sizes=(100, 50), activation='relu', solver='adam', random_state=0)
+clf_nn = MLPClassifier(hidden_layer_sizes=(100, 50), 
+                       activation='logistic', 
+                       solver='adam', 
+                       random_state=0)
 clf_nn.fit(X_train_scaled, y_train)
 
 # Prediction variables for neural network
