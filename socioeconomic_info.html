@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socioeconomic Information Form</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Socioeconomic Information Form</h1>
+    <form action="{{ url_for('high_school_info') }}" method="POST">
+        <label for="stratum">Stratum (Residential areas based on socioeconomic level) :</label>
+        <select id="stratum" name="stratum">
+            <option value="1">Stratum 1</option>
+            <option value="2">Stratum 2</option>
+            <option value="3">Stratum 3</option>
+            <option value="4">Stratum 4</option>
+            <option value="5">Stratum 5</option>
+            <option value="6">Stratum 6</option>
+        </select><br><br>
+
+        <label for="sisben">SISBEN (System for social assistance) :</label>
+        <select id="sisben" name="sisben">
+            <option value="Level 1">Level 1</option>
+            <option value="Level 2">Level 2</option>
+            <option value="Level 3">Level 3</option>
+            <option value="It is classified in another SISBEN Level">It is classified in another SISBEN Level</option>
+            <option value="It is not classified by the SISBEN">It is not classified by the SISBEN</option>
+        </select><br><br>
+
+        <label for="people_house">Number of People in your household:</label>
+        <input type="number" id="people_house" name="quartile" min="0" max="20"><br><br>
+<label for="internet">Do you have access to the Internet:</label>
+        <select id="internet" name="internet">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select><br><br>
+
+        <label for="tv">Do you have a TV in your house:</label>
+        <select id="tv" name="tv">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select><br><br>
+
+        <label for="computer">Do you have a computer in your house :</label>
+        <select id="computer" name="computer">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select><br><br>
+
+        <label for="washing_machine">Does your family own a washing machine:</label>
+        <select id="washing_machine" name="washing_machine">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select><br><br>
+
+        <label for="microwave_oven">Do you own a microwave:</label>
+        <select id="microwave_oven" name="microwave_oven">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select><br><br>
+
+        <label for="car">Does your family have a car:</label>
+        <select id="car" name="car">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select><br><br>
+
+        <label for="dvd">Do you have a DVD player in your house:</label>
+        <select id="dvd" name="dvd">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select><br><br>
+
+        <label for="phone">Do you own a Phone:</label>
+        <select id="phone" name="phone">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select><br><br>
+
+        <label for="mobile">Do you own a Mobile device:</label>
+        <select id="mobile" name="mobile">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select><br><br>
+
+        <label for="fresh_food">Do you have acess to fresh food:</label>
+        <select id="fresh_food" name="fresh_food">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select><br><br>
+
+        <label for="family_revenue">Family Revenue LMMW (Legal Minimum Monthly Wage):</label>
+        <select id="family_revenue" name="family_revenue">
+            <option value="0">0</option>
+            <option value="less than 1 LMMW">Less than 1 LMMW</option>
+            <option value="Between 1 and less than 2 LMMW">Between 1 and less than 2 LMMW</option>
+            <option value="Between 2 and less than 3 LMMW">Between 2 and less than 3 LMMW</option>
+            <option value="Between 3 and less than 5 LMMW">Between 3 and less than 5 LMMW</option>
+            <option value="Between 5 and less than 7 LMMW">Between 5 and less than 7 LMMW</option>
+            <option value="Between 7 and less than 10 LMMW">Between 7 and less than 10 LMMW</option>
+            <option value="10 or more LMMW">10 or more LMMW</option>
+        </select><br><br>
+
+        <label for="job">How many hours do you work a week:</label>
+        <select id="job" name="job">
+            <option value="0 hours per week">0 hours per week</option>
+            <option value="Yes, 20 hours or more per week">More than 20 hours per week</option>
+            <option value="Yes, less than 20 hours per week">Less than 20 hours per week</option>
+        </select><br><br>
+
+        <input type="hidden" name="next" value="high_school_info">
+        <!-- Change the input type to submit -->
+        <input type="submit" value="Next">
+    </form>
+
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>High School Information Form</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>High School Information Form</h1>
+    <form action="{{ url_for('university_info') }}" method="POST">
+        <label for="school_nat">School Nature:</label>
+        <select id="school_nat" name="school_nat">
+            <option value="PRIVATE">Private</option>
+            <option value="PUBLIC">Public</option>
+        </select><br><br>
+
+        <label for="school_type">School Type:</label>
+        <select id="school_type" name="school_type">
+            <option value="ACADEMIC">Academic</option>
+            <option value="TECHNICAL">Technical</option>
+            <option value="TECHNICAL/ACADEMIC">Technical/Academic</option>
+        </select><br><br>
+
+        <label for="mat_s11">High School Maths percent (0-100):</label>
+        <input type="number" id="mat_s11" name="mat_s11" min="0" max="100"><br><br>
+
+        <label for="cr_s11">High School Critical Reading percent (0-100):</label>
+        <input type="number" id="cr_s11" name="cr_s11" min="0" max="100"><br><br>
+
+        <label for="cc_s11">High School Citizen Competence percent (0-100):</label>
+        <input type="number" id="cc_s11" name="cc_s11" min="0" max="100"><br><br>
+
+        <label for="bio_s11">High School Biology percent (0-100):</label>
+        <input type="number" id="bio_s11" name="bio_s11" min="0" max="100"><br><br>
+
+        <label for="eng_s11">High School English percent (0-100):</label>
+        <input type="number" id="eng_s11" name="eng_s11" min="0" max="100"><br><br>
+
+        <label for="average_score_saber11">Average Score high school (0-100):</label>
+        <input type="number" id="average_score_saber11" name="average_score_saber11" min="0" max="100"><br><br>
+
+        <label for="performance_saber11">Performance During high school:</label>
+        <select id="performance_saber11" name="performance_saber11">
+            <option value="">Select Performance Saber11</option>
+            {% for performance in performance_saber11 %}
+                <option value="{{ performance }}">{{ performance }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        <input type="hidden" name="next" value="university_info">
+        <!-- Change the input type to submit -->
+        <input type="submit" value="Next">
+    </form>
+
+</body>
+</html>

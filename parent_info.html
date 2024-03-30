@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Information Form</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Parent Information Form</h1>
+    <form action="{{ url_for('socioeconomic_info') }}" method="POST">
+
+        <label for="edu_father">Education Level of Father:</label>
+        <select id="edu_father" name="edu_father">
+            <option value="None">None</option>
+            <option value="Incomplete Professional Education">Incomplete Professional Education</option>
+            <option value="Complete Secundary">Complete Secundary</option>
+            <option value="Complete professional education">Complete professional education</option>
+            <option value="Incomplete Secundary">Incomplete Secundary</option>
+            <option value="Incomplete technical or technological">Incomplete technical or technological</option>
+            <option value="Complete technique or technology">Complete technique or technology</option>
+            <option value="Incomplete primary">Incomplete primary</option>
+            <option value="Complete primary">Complete primary</option>
+            <option value="Postgraduate education">Postgraduate education</option>
+        </select><br><br>
+        
+        <label for="edu_mother">Education Level of Mother:</label>
+        <select id="edu_mother" name="edu_mother">
+            <option value="None">None</option>
+            <option value="Complete technique or technology">Complete technique or technology</option>
+            <option value="Complete professional education">Complete professional education</option>
+            <option value="Complete Secundary">Complete Secundary</option>
+            <option value="Incomplete technical or technological">Incomplete technical or technological</option>
+            <option value="Incomplete primary">Incomplete primary</option>
+            <option value="Incomplete Secundary">Incomplete Secundary</option>
+            <option value="Incomplete Professional Education">Incomplete Professional Education</option>
+            <option value="Postgraduate education">Postgraduate education</option>
+            <option value="Complete primary">Complete primary</option>
+        </select><br><br>
+
+        <label for="occ_father">Occupation of Father:</label>
+        <select id="occ_father" name="occ_father">
+            <option value="Unemployed">Unemployed</option>
+            <option value="Technical or professional level employee">Technical or professional level employee</option>
+            <option value="Entrepreneur">Entrepreneur</option>
+            <option value="Independent">Independent</option>
+            <option value="Other occupation">Other occupation</option>
+            <option value="Executive">Executive</option>
+            <option value="Small entrepreneur">Small entrepreneur</option>
+            <option value="Independent professional">Independent professional</option>
+            <option value="Operator">Operator</option>
+            <option value="Auxiliary or Administrative">Auxiliary or Administrative</option>
+        </select><br><br>
+
+        <label for="occ_mother">Occupation of Mother:</label>
+        <select id="occ_mother" name="occ_mother">
+            <option value="Unemployed">Unemployed</option>
+            <option value="Technical or professional level employee">Technical or professional level employee</option>
+            <option value="Entrepreneur">Entrepreneur</option>
+            <option value="Independent">Independent</option>
+            <option value="Other occupation">Other occupation</option>
+            <option value="Executive">Executive</option>
+            <option value="Small entrepreneur">Small entrepreneur</option>
+            <option value="Independent professional">Independent professional</option>
+            <option value="Operator">Operator</option>
+            <option value="Auxiliary or Administrative">Auxiliary or Administrative</option>
+        </select><br><br>
+
+        <input type="hidden" name="next" value="socioeconomic_info">
+
+        <input type="submit" value="Next">
+    </form>
+</body>
+</html>

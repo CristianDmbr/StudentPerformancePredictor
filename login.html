@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Login Page</h1><br>
+
+    <!-- Display error message -->
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <!-- login.html -->
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        {{ form.username }}
+        {{ form.password }}
+        {{ form.submit }}
+    </form>
+
+    <a href="{{url_for('register')}}">If you don't have an account? Sign up!</a><br>
+    <a href="{{url_for('home')}}">Home</a><br>
+</body>
+</html>
