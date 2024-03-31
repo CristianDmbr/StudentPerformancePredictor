@@ -12,7 +12,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
 from sklearn.ensemble import RandomForestClassifier
-
+import joblib 
 
 app = Flask(__name__, static_url_path='/static')
 bcrypt = Bcrypt(app)
@@ -149,16 +149,11 @@ def university_info():
             return redirect(url_for('result'))
     return render_template('university_info.html')
 
-########################################################################################################################################################################
-
 # Load data and train Random Forest model
 dataBase = pd.read_csv('Database/Academic Database.csv')
 dataBase.drop(columns=['COD_S11', 'COD_SPRO', 'SCHOOL_NAME', 'UNIVERSITY', 'Unnamed: 9'], inplace=True)
 
-####################################################################################
 # Adding new columns:
-
-# Calculate the average of SABER PRO'S 'QR_PRO', 'CR_PRO', 'CC_PRO', 'ENG_PRO', 'WC_PRO' metrics
 dataBase["Average_Score_SABER_PRO"] = dataBase[['QR_PRO', 'CR_PRO', 'CC_PRO', 'ENG_PRO', 'WC_PRO']].mean(axis=1)
 dataBase["Performance_SABER_PRO"] = np.select(
     [
@@ -176,7 +171,6 @@ dataBase["Performance_SABER_PRO"] = np.select(
     default='Fail'
 )
 
-# Calculate the average of Saber 11 competences
 dataBase["Average_Score_Saber11"] = dataBase[['MAT_S11', 'CR_S11', 'CC_S11', 'BIO_S11', 'ENG_S11']].mean(axis=1)
 dataBase["Performance_Saber11"] = np.select(
     [
@@ -194,29 +188,14 @@ dataBase["Performance_Saber11"] = np.select(
     default='Fail'
 )
 
-####################################################################################
-# Replace EDU_FATHER and EDU_MOTHER records of “Not sure” and “0” and “Ninguno” (meaning None) with “None”
 dataBase["EDU_FATHER"].replace({"Not sure": "None", "0": "None", "Ninguno": "None"}, inplace=True)
 dataBase["EDU_MOTHER"].replace({"Not sure": "None", "0": "None", "Ninguno": "None"}, inplace=True)
-
-# Replace OOC_FATHER and OCC_MOTHER records of “0”, “Home” and “Retires” with "unemployed"
 dataBase["OCC_FATHER"].replace({"0": "Unemployed", "Home" : "Unemployed", "Retired": "Unemployed"}, inplace=True)
 dataBase["OCC_MOTHER"].replace({"0": "Unemployed", "Home" : "Unemployed", "Retired": "Unemployed"}, inplace=True)
-
-# Change “Esta clasificada en otro Level del SISBEN” into "It is classified in another SISBEN Level" from SISBEN
 dataBase["SISBEN"].replace({"Esta clasificada en otro Level del SISBEN" : "It is classified in another SISBEN Level"}, inplace=True)
-
-# In PEOPLE_HOUSE replace “Nueve” into “Nine” and “Once” into “Eleven”
 dataBase["PEOPLE_HOUSE"].replace({"Nueve" : "Nine", "Once" : "Eleven"}, inplace=True)
-
-# Replace “No” and “O” to “0 hours per week”
 dataBase["JOB"].replace({"No":"0 hours per week","0":"0 hours per week"}, inplace=True)
 
-####################################################################################
-
-####################################################################################
-
-# Data Splitting:
 X_raw = dataBase[['GENDER', 'EDU_FATHER', 'EDU_MOTHER', 'OCC_FATHER', 'OCC_MOTHER',
        'STRATUM', 'SISBEN', 'PEOPLE_HOUSE', 'INTERNET', 'TV',
        'COMPUTER', 'WASHING_MCH', 'MIC_OVEN', 'CAR', 'DVD', 'FRESH', 'PHONE',
@@ -229,14 +208,10 @@ X_raw = dataBase[['GENDER', 'EDU_FATHER', 'EDU_MOTHER', 'OCC_FATHER', 'OCC_MOTHE
 y_raw = dataBase["Performance_SABER_PRO"]
 X_train_raw, X_test_raw, y_train, y_test = train_test_split(X_raw, y_raw, test_size=0.20, shuffle=True, random_state=0)
 
-# Identify columns with missing values
 missing_columns = X_train_raw.columns[X_train_raw.isnull().any()]
-
-# Separate numerical and categorical features
 numerical_features = X_raw.select_dtypes(include=np.number).columns
 categorical_features = X_raw.select_dtypes(exclude=np.number).columns
 
-# Handle missing values for numerical features
 if not X_train_raw[numerical_features].empty:
     numeric_imputer = SimpleImputer(strategy="mean")
     X_train_numerical_imputed = numeric_imputer.fit_transform(X_train_raw[numerical_features])
@@ -244,7 +219,6 @@ if not X_train_raw[numerical_features].empty:
 else:
     print("No numerical features to impute.")
 
-# Handle missing values for categorical features
 if not X_train_raw[categorical_features].empty:
     categoric_imputer = SimpleImputer(strategy="most_frequent")
     X_train_categorical_imputed = categoric_imputer.fit_transform(X_train_raw[categorical_features])
@@ -252,22 +226,17 @@ if not X_train_raw[categorical_features].empty:
 else:
     print("No categorical features to impute.")
 
-# Encode categorical features
-encoder = OneHotEncoder(handle_unknown='ignore')  # Ignores unknown categories
+encoder = OneHotEncoder(handle_unknown='ignore')
 X_train_categorical_encoded = encoder.fit_transform(X_train_categorical_imputed)
-# For test data, use the categories learned from the training data
 X_test_categorical_encoded = encoder.transform(X_test_categorical_imputed)
 
-# Concatenate numerical and encoded categorical features
 X_train_encoded = np.concatenate((X_train_numerical_imputed, X_train_categorical_encoded.toarray()), axis=1)
 X_test_encoded = np.concatenate((X_test_numerical_imputed, X_test_categorical_encoded.toarray()), axis=1)
 
-# Scale numerical features
 scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
-# Train Random Forest classifier
 clf_rf = RandomForestClassifier(bootstrap = False,
                                 max_depth = 20,
                                 min_samples_leaf = 1,
@@ -275,94 +244,136 @@ clf_rf = RandomForestClassifier(bootstrap = False,
                                 n_estimators = 50)
 clf_rf.fit(X_train_scaled, y_train)
 
-# Define route to handle prediction requests
-@app.route('/predict', methods=['POST'])
-@login_required
-def predict():
-    if request.method == 'POST':
-        # Retrieve form data
-        form_data = request.form
-        # Get data from the form
-        # Convert form data to appropriate data types and preprocess if needed
-        gender = int(form_data.get('gender'))  # Assuming 'gender' is represented as an integer
-        edu_father = form_data.get('edu_father')
-        edu_mother = form_data.get('edu_mother')
-        occ_father = form_data.get('occ_father')
-        occ_mother = form_data.get('occ_mother')
-        stratum = int(form_data.get('stratum'))  # Assuming 'stratum' is represented as an integer
-        sisben = form_data.get('sisben')
-        people_house = int(form_data.get('people_house'))  # Assuming 'people_house' is represented as an integer
-        internet = int(form_data.get('internet'))  # Assuming 'internet' is represented as an integer (e.g., 0 or 1)
-        tv = int(form_data.get('tv'))  # Assuming 'tv' is represented as an integer (e.g., 0 or 1)
-        computer = int(form_data.get('computer'))  # Assuming 'computer' is represented as an integer (e.g., 0 or 1)
-        washing_machine = int(form_data.get('washing_machine'))  # Assuming 'washing_machine' is represented as an integer (e.g., 0 or 1)
-        microwave_oven = int(form_data.get('microwave_oven'))  # Assuming 'microwave_oven' is represented as an integer (e.g., 0 or 1)
-        car = int(form_data.get('car'))  # Assuming 'car' is represented as an integer (e.g., 0 or 1)
-        dvd = int(form_data.get('dvd'))  # Assuming 'dvd' is represented as an integer (e.g., 0 or 1)
-        phone = int(form_data.get('phone'))  # Assuming 'phone' is represented as an integer (e.g., 0 or 1)
-        mobile = int(form_data.get('mobile'))  # Assuming 'mobile' is represented as an integer (e.g., 0 or 1)
-        fresh_food = int(form_data.get('fresh_food'))  # Assuming 'fresh_food' is represented as an integer (e.g., 0 or 1)
-        family_revenue = float(form_data.get('family_revenue'))  # Assuming 'family_revenue' is represented as a floating-point number
-        job = form_data.get('job')
-        school_nat = form_data.get('school_nat')
-        school_type = form_data.get('school_type')
-        mat_s11 = float(form_data.get('mat_s11'))  # Assuming 'mat_s11' is represented as a floating-point number
-        cr_s11 = float(form_data.get('cr_s11'))  # Assuming 'cr_s11' is represented as a floating-point number
-        cc_s11 = float(form_data.get('cc_s11'))  # Assuming 'cc_s11' is represented as a floating-point number
-        bio_s11 = float(form_data.get('bio_s11'))  # Assuming 'bio_s11' is represented as a floating-point number
-        eng_s11 = float(form_data.get('eng_s11'))  # Assuming 'eng_s11' is represented as a floating-point number
-        average_score_saber11 = float(form_data.get('average_score_saber11'))  # Assuming 'average_score_saber11' is represented as a floating-point number
-        performance_saber11 = form_data.get('performance_saber11')
+joblib.dump(clf_rf, 'random_forest_model.joblib')
 
-        # Make predictions using the trained model
-        input_data = np.array([[gender, edu_father, edu_mother, occ_father, occ_mother, stratum, sisben, people_house, 
-                                internet, tv, computer, washing_machine, microwave_oven, car, dvd, phone, mobile, 
-                                fresh_food, family_revenue, job, school_nat, school_type, mat_s11, cr_s11, cc_s11, 
-                                bio_s11, eng_s11, average_score_saber11, performance_saber11]])
-
-        # Preprocess the input data
-        # Handle missing values for numerical features
-        input_data_numerical = numeric_imputer.transform(input_data[:, [22, 23, 24, 25, 26, 27]])
-        # Handle missing values for categorical features
-        input_data_categorical = categoric_imputer.transform(input_data[:, [1, 2, 3, 4, 6]])
-        # Encode categorical features
-        input_data_encoded = encoder.transform(input_data_categorical)
-        # Concatenate numerical and encoded categorical features
-        input_data_scaled = scaler.transform(np.concatenate((input_data_numerical, input_data_encoded.toarray()), axis=1))
-
-        # Make prediction using the trained model
-        prediction = clf_rf.predict(input_data_scaled)
-
-        # Do something with the prediction
-        # For example, render a template with the prediction
-        return render_template('result.html', prediction_results={'prediction': prediction})
-
-def map_prediction_to_category(prediction):
-    if prediction == 'Best':
-        return 'Top performer'
-    elif prediction == 'Very Good':
-        return 'High achiever'
-    elif prediction == 'Good':
-        return 'Above average'
-    elif prediction == 'Pass':
-        return 'Average'
-    elif prediction == 'Fail':
-        return 'Below average'
+def map_to_performance_category(prediction):
+    if prediction >= 90:
+        return "Amazing"
+    elif prediction >= 80:
+        return "Very Good"
+    elif prediction >= 70:
+        return "Good"
+    elif prediction >= 60:
+        return "Average"
+    elif prediction >= 50:
+        return "Pass"
+    elif prediction >= 40:
+        return "Below Average"
     else:
-        return 'Critical intervention needed'
+        return "Fail"
 
-@app.route('/result', methods=['GET', 'POST'])
+@app.route('/result', methods=['POST'])
 @login_required
 def result():
     if request.method == 'POST':
-        # Handle any form submissions if necessary
-        pass  # Placeholder, you can add handling logic here
-    
-    # Assuming prediction_results is defined elsewhere in your code
-    prediction_results = {'prediction': 'some_value'}  # Replace 'some_value' with the actual prediction
-    prediction_category = map_prediction_to_category(prediction_results['prediction'])
-    
-    return render_template('result.html', prediction_category=prediction_category)
+        # Retrieve input values from the university information form
+        academic_program = request.form.get('academic_program')
+        qr_pro = float(request.form.get('qr_pro'))
+        cr_pro = float(request.form.get('cr_pro'))
+        cc_pro = float(request.form.get('cc_pro'))
+        eng_pro = float(request.form.get('eng_pro'))
+        wc_pro = float(request.form.get('wc_pro'))
+        fep_pro = float(request.form.get('fep_pro'))
+        g_sc = float(request.form.get('g_sc'))
+        percentile = float(request.form.get('percentile'))
+
+        # Retrieve input values from the high school information form
+        school_nat = request.form.get('school_nat')
+        school_type = request.form.get('school_type')
+        mat_s11 = request.form.get('mat_s11')
+        cr_s11 = request.form.get('cr_s11')
+        cc_s11 = request.form.get('cc_s11')
+        bio_s11 = request.form.get('bio_s11')
+        eng_s11 = request.form.get('eng_s11')
+        average_score_saber11 = request.form.get('average_score_saber11')
+        performance_saber11 = request.form.get('performance_saber11')
+
+        # Retrieve input values from the socioeconomic information form
+        stratum = request.form.get('stratum')
+        sisben = request.form.get('sisben')
+        people_house = request.form.get('people_house')  # Retrieve the value without converting it to int yet
+        internet = request.form.get('internet')
+        tv = request.form.get('tv')
+        computer = request.form.get('computer')
+        washing_machine = request.form.get('washing_machine')
+        microwave_oven = request.form.get('microwave_oven')
+        car = request.form.get('car')
+        dvd = request.form.get('dvd')
+        phone = request.form.get('phone')
+        mobile = request.form.get('mobile')
+        fresh_food = request.form.get('fresh_food')
+        family_revenue = request.form.get('family_revenue')
+        job = request.form.get('job')
+
+        # Retrieve input values from the parent information form
+        gender = request.form.get('gender')
+        edu_father = request.form.get('edu_father')
+        edu_mother = request.form.get('edu_mother')
+        occ_father = request.form.get('occ_father')
+        occ_mother = request.form.get('occ_mother')
+
+        # Create a DataFrame containing all input values
+        input_data = pd.DataFrame({
+            'GENDER': [gender],
+            'EDU_FATHER': [edu_father],
+            'EDU_MOTHER': [edu_mother],
+            'OCC_FATHER': [occ_father],
+            'OCC_MOTHER': [occ_mother],
+            'STRATUM': [stratum],
+            'SISBEN': [sisben],
+            'PEOPLE_HOUSE': [people_house],
+            'INTERNET': [internet],
+            'TV': [tv],
+            'COMPUTER': [computer],
+            'WASHING_MCH': [washing_machine],
+            'MIC_OVEN': [microwave_oven],
+            'CAR': [car],
+            'DVD': [dvd],
+            'FRESH': [fresh_food],
+            'PHONE': [phone],
+            'MOBILE': [mobile],
+            'REVENUE': [family_revenue],
+            'JOB': [job],
+            'SCHOOL_NAT': [school_nat],
+            'SCHOOL_TYPE': [school_type],
+            'MAT_S11': [mat_s11],
+            'CR_S11': [cr_s11],
+            'CC_S11': [cc_s11],
+            'BIO_S11': [bio_s11],
+            'ENG_S11': [eng_s11],
+            'ACADEMIC_PROGRAM': [academic_program],
+            'QR_PRO': [qr_pro],
+            'CR_PRO': [cr_pro],
+            'CC_PRO': [cc_pro],
+            'ENG_PRO': [eng_pro],
+            'WC_PRO': [wc_pro],
+            'FEP_PRO': [fep_pro],
+            'G_SC': [g_sc],
+            'PERCENTILE': [percentile],
+            '2ND_DECILE': [0], 
+            'QUARTILE': [0],
+            'SEL': [0],
+            'SEL_IHE': [0],
+            'Average_Score_SABER_PRO': [0],
+            'Average_Score_Saber11': [0],
+            'Performance_Saber11': ['Fail']  
+        })
+
+        # Preprocess input data
+        X_input_numerical_imputed = numeric_imputer.transform(input_data[numerical_features])
+        X_input_categorical_imputed = categoric_imputer.transform(input_data[categorical_features])
+        X_input_categorical_encoded = encoder.transform(X_input_categorical_imputed)
+        X_input_encoded = np.concatenate((X_input_numerical_imputed, X_input_categorical_encoded.toarray()), axis=1)
+        X_input_scaled = scaler.transform(X_input_encoded)
+
+        # Load trained model
+        clf_rf = joblib.load('random_forest_model.joblib')
+
+        # Make prediction
+        prediction = clf_rf.predict(X_input_scaled)
+
+        # Pass prediction result to result template
+        return render_template('result.html', prediction=prediction[0])
 
 
 if __name__ == '__main__':
@@ -370,7 +381,7 @@ if __name__ == '__main__':
         inspector = db.inspect(db.engine)
         if 'user' in inspector.get_table_names():
             print("User table exists.")
-        else:
+        else: 
             print("User table does not exist.")
         
         db.create_all()
