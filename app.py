@@ -74,21 +74,8 @@ def login():
 
 @app.route('/dashboard')
 @login_required
-def dashboard():
-    academic_programs = ['INDUSTRIAL ENGINEERING', 'ELECTRONIC ENGINEERING', 'CIVIL ENGINEERING',
-                     'MECHANICAL ENGINEERING', 'ELECTRIC ENGINEERING',
-                     'ELECTRIC ENGINEERING AND TELECOMMUNICATIONS', 'CHEMICAL ENGINEERING',
-                     'AERONAUTICAL ENGINEERING', 'MECHATRONICS ENGINEERING',
-                     'INDUSTRIAL AUTOMATIC ENGINEERING', 'TRANSPORTATION AND ROAD ENGINEERING',
-                     'TOPOGRAPHIC ENGINEERY', 'INDUSTRIAL CONTROL AND AUTOMATION ENGINEERING',
-                     'CONTROL ENGINEERING', 'CATASTRAL ENGINEERING AND GEODESY',
-                     'PRODUCTION ENGINEERING', 'PRODUCTIVITY AND QUALITY ENGINEERING',
-                     'CIVIL CONSTRUCTIONS', 'ELECTROMECHANICAL ENGINEERING',
-                     'AUTOMATION ENGINEERING', 'TEXTILE ENGINEERING']
-
-    performance_saber11 = ['Good', 'Very Good', 'Fail', 'Pass', 'Best']
-
-    return render_template('dashboard.html', academic_programs=academic_programs, performance_saber11=performance_saber11)
+def dashboard(): 
+    return render_template('dashboard.html')
 
 @app.route('/logout')
 @login_required
@@ -134,20 +121,34 @@ def socioeconomic_info():
 @app.route('/high-school-info', methods=['GET', 'POST'])
 @login_required
 def high_school_info():
+    performance_saber11 = ['Good', 'Very Good', 'Fail', 'Pass', 'Best']
+
     if request.method == 'POST':
         next_page = request.form.get('next', None)
         if next_page == 'university_info':
             return redirect(url_for('university_info'))
-    return render_template('high_school_info.html')
+    return render_template('high_school_info.html', performance_saber11=performance_saber11)
 
 @app.route('/university-info', methods=['GET', 'POST'])
 @login_required
 def university_info():
-    if request.method == 'POST':
-        next_page = request.form.get('next', None)
-        if next_page == 'result':
-            return redirect(url_for('result'))
-    return render_template('university_info.html')
+        academic_programs = ['INDUSTRIAL ENGINEERING', 'ELECTRONIC ENGINEERING', 'CIVIL ENGINEERING',
+                         'MECHANICAL ENGINEERING', 'ELECTRIC ENGINEERING',
+                         'ELECTRIC ENGINEERING AND TELECOMMUNICATIONS', 'CHEMICAL ENGINEERING',
+                         'AERONAUTICAL ENGINEERING', 'MECHATRONICS ENGINEERING',
+                         'INDUSTRIAL AUTOMATIC ENGINEERING', 'TRANSPORTATION AND ROAD ENGINEERING',
+                         'TOPOGRAPHIC ENGINEERY', 'INDUSTRIAL CONTROL AND AUTOMATION ENGINEERING',
+                         'CONTROL ENGINEERING', 'CATASTRAL ENGINEERING AND GEODESY',
+                         'PRODUCTION ENGINEERING', 'PRODUCTIVITY AND QUALITY ENGINEERING',
+                         'CIVIL CONSTRUCTIONS', 'ELECTROMECHANICAL ENGINEERING',
+                         'AUTOMATION ENGINEERING', 'TEXTILE ENGINEERING']
+
+        if request.method == 'POST':
+            next_page = request.form.get('next', None)
+            if next_page == 'result':
+                return redirect(url_for('result'))
+        return render_template('university_info.html', academic_programs=academic_programs)
+
 
 # Load data and train Random Forest model
 dataBase = pd.read_csv('Database/Academic Database.csv')
@@ -203,7 +204,7 @@ X_raw = dataBase[['GENDER', 'EDU_FATHER', 'EDU_MOTHER', 'OCC_FATHER', 'OCC_MOTHE
        'CR_S11', 'CC_S11', 'BIO_S11', 'ENG_S11', 'ACADEMIC_PROGRAM', 'QR_PRO',
        'CR_PRO', 'CC_PRO', 'ENG_PRO', 'WC_PRO', 'FEP_PRO', 'G_SC',
        'PERCENTILE', '2ND_DECILE', 'QUARTILE', 'SEL', 'SEL_IHE',
-       'Average_Score_SABER_PRO','Average_Score_Saber11', 'Performance_Saber11']]
+       'Average_Score_Saber11', 'Performance_Saber11']]
 
 y_raw = dataBase["Performance_SABER_PRO"]
 X_train_raw, X_test_raw, y_train, y_test = train_test_split(X_raw, y_raw, test_size=0.20, shuffle=True, random_state=0)
@@ -276,6 +277,10 @@ def result():
         fep_pro = float(request.form.get('fep_pro'))
         g_sc = float(request.form.get('g_sc'))
         percentile = float(request.form.get('percentile'))
+        second_decile = float(request.form.get('2nd_decile'))
+        quartile = float(request.form.get('quartile'))
+        sel = float(request.form.get('sel'))
+        sel_ihe = float(request.form.get('sel_ihe'))
 
         # Retrieve input values from the high school information form
         school_nat = request.form.get('school_nat')
@@ -350,13 +355,12 @@ def result():
             'FEP_PRO': [fep_pro],
             'G_SC': [g_sc],
             'PERCENTILE': [percentile],
-            '2ND_DECILE': [0], 
-            'QUARTILE': [0],
-            'SEL': [0],
-            'SEL_IHE': [0],
-            'Average_Score_SABER_PRO': [0],
-            'Average_Score_Saber11': [0],
-            'Performance_Saber11': ['Fail']  
+            '2ND_DECILE': [second_decile], 
+            'QUARTILE': [quartile],
+            'SEL': [sel],
+            'SEL_IHE': [sel_ihe],
+            'Average_Score_Saber11': [average_score_saber11],
+            'Performance_Saber11': [performance_saber11]  
         })
 
         # Preprocess input data
@@ -372,8 +376,11 @@ def result():
         # Make prediction
         prediction = clf_rf.predict(X_input_scaled)
 
+        # Map prediction to performance category
+        performance_category = map_to_performance_category(prediction)
+
         # Pass prediction result to result template
-        return render_template('result.html', prediction=prediction[0])
+        return render_template('result.html', performance_category=performance_category)
 
 
 if __name__ == '__main__':
