@@ -11,6 +11,12 @@
     <h1>Parent Information Form</h1>
     <form action="{{ url_for('socioeconomic_info') }}" method="POST">
 
+        <label for="gender">Gender:</label>
+        <select id="gender" name="gender">
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+        </select><br><br>
+
         <label for="edu_father">Education Level of Father:</label>
         <select id="edu_father" name="edu_father">
             <option value="None">None</option>
@@ -71,5 +77,20 @@
 
         <input type="submit" value="Next">
     </form>
+    <a href="{{ url_for('dashboard') }}">Back</a>
 </body>
+<script>
+    // Save select values to local storage when changed
+    document.querySelectorAll('select').forEach(select => {
+        const key = select.id;
+        select.addEventListener('change', () => {
+            localStorage.setItem(key, select.value);
+        });
+        // Restore select values from local storage
+        const storedValue = localStorage.getItem(key);
+        if (storedValue) {
+            select.value = storedValue;
+        }
+    });
+</script>
 </html>
