@@ -15,6 +15,7 @@ body {
 h1 {
     color: #333;
     text-align: center;
+    margin-bottom: 20px; /* Add some space below the header */
 }
 
 /* Form styles */
@@ -23,8 +24,8 @@ form {
     margin: 20px auto;
     padding: 20px;
     background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    border-radius: 10px; /* Increase border radius for smoother edges */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Soften the box shadow */
 }
 
 /* Input field styles */
@@ -33,11 +34,12 @@ input[type="password"],
 input[type="submit"] {
     display: block;
     width: 100%;
-    margin-bottom: 10px;
-    padding: 10px;
+    margin-bottom: 15px; /* Increase space between input fields */
+    padding: 12px; /* Increase padding for better readability */
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 8px; /* Increase border radius for smoother edges */
     box-sizing: border-box;
+    font-size: 16px; /* Increase font size for better visibility */
 }
 
 /* Submit button styles */
@@ -45,6 +47,7 @@ input[type="submit"] {
     background-color: #007bff;
     color: #fff;
     cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth transition effect */
 }
 
 input[type="submit"]:hover {
@@ -54,25 +57,26 @@ input[type="submit"]:hover {
 /* Link styles */
 a {
     display: block;
-    margin: 10px auto;
+    margin: 20px auto; /* Add more space around links */
     width: fit-content;
     text-align: center;
     text-decoration: none;
     color: #007bff;
+    transition: color 0.3s ease; /* Smooth transition effect */
 }
 
 a:hover {
-    text-decoration: underline;
+    color: #0056b3;
 }
 
 /* Error message styles */
 .error {
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #f8d7da; /* Red background color */
-    color: #721c24; /* Dark red text color */
-    margin-bottom: 10px;
-    text-align: center; /* Center align the error message */
-    font-size: 16px; /* Adjust font size */
-    font-weight: bold; /* Make the error message bold */
+    padding: 15px;
+    border-radius: 8px;
+    background-color: #f8d7da;
+    color: #721c24;
+    margin-bottom: 20px; /* Increase space below error message */
+    text-align: center;
+    font-size: 16px;
+    font-weight: bold;
 }

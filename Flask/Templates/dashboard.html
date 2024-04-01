@@ -6,14 +6,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Information Form</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Resetting default margin and padding */
+        body, h1, ul {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Center the content */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+
+        /* Style for the container */
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        /* Header styles */
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* List styles */
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 15px;
+        }
+
+        /* Link styles */
+        a {
+            display: block;
+            padding: 12px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition effect */
+        }
+
+        a:hover {
+            background-color: #0056b3; /* Darken background color on hover */
+            color: #fff; /* Keep text color white on hover */
+        }
+    </style>
 </head>
 <body>
-    <h1>Student Information Form</h1>
-    <ul>
-        <li><a href="{{ url_for('parent_info') }}">Parent Information</a></li>
-        <li><a href="{{ url_for('socioeconomic_info') }}">Socioeconomic Information</a></li>
-        <li><a href="{{ url_for('high_school_info') }}">High School Information</a></li>
-        <li><a href="{{ url_for('university_info') }}">University Information</a></li>
-    </ul>
+    <div class="container">
+        <h1>Student Information Form</h1>
+        <ul>
+            <li><a href="{{ url_for('parent_info') }}">Parent Information</a></li>
+            <li><a href="{{ url_for('socioeconomic_info') }}">Socioeconomic Information</a></li>
+            <li><a href="{{ url_for('high_school_info') }}">High School Information</a></li>
+            <li><a href="{{ url_for('university_info') }}">University Information</a></li>
+        </ul>
+    </div>
 </body>
 </html>

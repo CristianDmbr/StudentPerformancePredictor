@@ -4,40 +4,77 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
+    <title>Login</title>
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        /* Resetting default margin and padding */
+        body, h1, ul {
             margin: 0;
             padding: 0;
-            background-color: #f8f9fa; /* Light gray background */
         }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
+
+        /* Center the content */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
             padding: 20px;
+        }
+
+        /* Style for the container */
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
+
+        /* Header styles */
         h1 {
-            color: #343a40; /* Dark gray text */
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
         }
+
+        /* List styles */
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 15px;
+        }
+
+        /* Link styles */
         a {
             display: block;
-            margin-top: 10px;
-            color: #007bff; /* Blue links */
+            padding: 12px;
+            background-color: #007bff;
+            color: #fff;
             text-decoration: none;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition effect */
         }
+
         a:hover {
-            text-decoration: underline;
+            background-color: #0056b3; /* Darken background color on hover */
+            color: #fff; /* Keep text color white on hover */
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Home Page</h1>
-        <a href="{{ url_for('login') }}">Login Page</a>
-        <a href="{{ url_for('register') }}">Register Page</a>
+        <h1>Login Page</h1>
+        <ul>
+            <li><a href="{{ url_for('login') }}">Login</a></li>
+            <li><a href="{{ url_for('register') }}">Register</a></li>
+        </ul>
     </div>
 </body>
 </html>
