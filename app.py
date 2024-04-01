@@ -248,20 +248,21 @@ clf_rf.fit(X_train_scaled, y_train)
 joblib.dump(clf_rf, 'random_forest_model.joblib')
 
 def map_to_performance_category(prediction):
-    if prediction >= 90:
-        return "Amazing"
-    elif prediction >= 80:
-        return "Very Good"
-    elif prediction >= 70:
-        return "Good"
-    elif prediction >= 60:
-        return "Average"
-    elif prediction >= 50:
-        return "Pass"
-    elif prediction >= 40:
-        return "Below Average"
+    if prediction == 'Best':
+        return 100
+    elif prediction == 'Very Good':
+        return 90
+    elif prediction == 'Good':
+        return 80
+    elif prediction == 'Pass':
+        return 70
+    elif prediction == 'Below Average':
+        return 60
+    elif prediction == 'Fail':
+        return 50
     else:
-        return "Fail"
+        return "0"
+
 
 @app.route('/result', methods=['POST'])
 @login_required
@@ -375,9 +376,9 @@ def result():
 
         # Make prediction
         prediction = clf_rf.predict(X_input_scaled)
-
         # Map prediction to performance category
-        performance_category = map_to_performance_category(prediction)
+
+        performance_category = map_to_performance_category(prediction[0])  # Assuming prediction is a single value
 
         # Pass prediction result to result template
         return render_template('result.html', performance_category=performance_category)
