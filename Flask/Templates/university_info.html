@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Information Form</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>University Information Form</h1>
+    <form action="{{ url_for('result') }}" method="POST">
+
+        <label for="academic_program">Academic Course Program:</label>
+        <select id="academic_program" name="academic_program">
+            <option value="">Select Academic Program</option>
+            {% for program in academic_programs %}
+                <option value="{{ program }}">{{ program }}</option>
+            {% endfor %}
+        </select><br><br>
+
+        
+        <label for="qr_pro">Quantitative Reasoning in university (0-100):</label>
+        <input type="number" id="qr_pro" name="qr_pro" min="0" max="100"><br><br>
+
+        <label for="cr_pro">Critical Reading in university (0-100):</label>
+        <input type="number" id="cr_pro" name="cr_pro" min="0" max="100"><br><br>
+
+        <label for="cc_pro">Citizen Competencies in university (0-100):</label>
+        <input type="number" id="cc_pro" name="cc_pro" min="0" max="100"><br><br>
+
+        <label for="eng_pro">English percent in university (0-100):</label>
+        <input type="number" id="eng_pro" name="eng_pro" min="0" max="100"><br><br>
+
+        <label for="wc_pro">Written Communication percent in university (0-100):</label>
+        <input type="number" id="wc_pro" name="wc_pro" min="0" max="100"><br><br>
+
+        <label for="fep_pro">Formulation of Engineering Projects in university  (0-100):</label>
+        <input type="number" id="fep_pro" name="fep_pro" min="0" max="100"><br><br>
+
+        <label for="g_sc">Global Score in university (0-100):</label>
+        <input type="number" id="g_sc" name="g_sc" min="0" max="100"><br><br>
+
+        <label for="percentile">Percentile percentage (0-100):</label>
+        <input type="number" id="percentile" name="percentile" min="0" max="100"><br><br>
+
+        <label for="2nd_decile">2ND Decile percentage  (0-100):</label>
+        <input type="number" id="2nd_decile" name="2nd_decile" min="0" max="100"><br><br>
+
+        <label for="quartile">Quartile percentage (0-100):</label>
+        <input type="number" id="quartile" name="quartile" min="0" max="100"><br><br>
+
+        <label for="sel">Socioeconomic Level (0-100):</label>
+        <input type="number" id="sel" name="sel" min="0" max="100"><br><br>
+
+        <label for="sel_ihe">Socioeconomic Level of The Institution of Higher Education (0-100):</label>
+        <input type="number" id="sel_ihe" name="sel_ihe" min="0" max="100"><br><br>
+
+        <!-- Add a hidden field to identify the 'next' action -->
+        <input type="hidden" name="next" value="result">
+
+        <!-- Change the input type to submit -->
+        <input type="submit" value="Next">
+    </form>
+    <a href="{{ url_for('high_school_info') }}">Back</a>
+</body>
+<script>
+    // Save select values to local storage when changed
+    document.querySelectorAll('select').forEach(select => {
+        const key = select.id;
+        select.addEventListener('change', () => {
+            localStorage.setItem(key, select.value);
+        });
+        // Restore select values from local storage
+        const storedValue = localStorage.getItem(key);
+        if (storedValue) {
+            select.value = storedValue;
+        }
+    });
+</script>
+</html>

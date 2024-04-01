@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Information Form</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <h1>Student Information Form</h1>
+    <ul>
+        <li><a href="{{ url_for('parent_info') }}">Parent Information</a></li>
+        <li><a href="{{ url_for('socioeconomic_info') }}">Socioeconomic Information</a></li>
+        <li><a href="{{ url_for('high_school_info') }}">High School Information</a></li>
+        <li><a href="{{ url_for('university_info') }}">University Information</a></li>
+    </ul>
+</body>
+</html>
