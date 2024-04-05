@@ -12,6 +12,7 @@ from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
 from sklearn.ensemble import RandomForestClassifier
+from heapq import nlargest, nsmallest
 import joblib 
 
 app = Flask(__name__, static_url_path='/static')
@@ -372,8 +373,28 @@ def result():
         # Make prediction
         prediction = clf_rf.predict(input_data_scaled)
 
-        # Pass prediction result to result template
-        return render_template('result.html', prediction=prediction[0])
+        # Extract lowest and highest numerical inputs
+        input_numerical_values = {
+            'Quantitative Reasoning': qr_pro,
+            'Critical Reading': cr_pro,
+            'Citizen Competencies': cc_pro,
+            'English': eng_pro,
+            'Written Communication': wc_pro,
+            'Formulation of Engineering Projects': fep_pro,
+            'Global Score': g_sc,
+            'percentile': percentile,
+            'Second Decile': second_decile,
+            'Quartile': quartile,
+            'Socioeconomic Level': sel,
+            'Socioeconomic Level of The Institution of Higher Education': sel_ihe
+        }
+        # Extract lowest and highest numerical inputs with their corresponding values
+        lowest_3 = nsmallest(3, input_numerical_values.items(), key=lambda x: x[1])
+        highest_3 = nlargest(3, input_numerical_values.items(), key=lambda x: x[1])
+
+        # Pass prediction result and input values to result template
+        return render_template('result.html', prediction=prediction[0], lowest_3=lowest_3, highest_3=highest_3, input_data=input_data.to_dict(orient='records')[0])
+
 
 
 if __name__ == '__main__':

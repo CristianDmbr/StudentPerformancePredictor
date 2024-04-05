@@ -35,7 +35,23 @@
 <body>
     <div class="container">
         <h1>Prediction Result</h1>
-        <p>The predicted performance of the student is: <strong>{{ prediction }}</strong></p> 
+        <p>The predicted performance of the student is: <strong>{{ prediction }}</strong></p>
+        
+        <h2>List of Student Weaknesses</h2>
+        <ul>
+            {% for feature, value in lowest_3 %}
+                <li>{{ feature }}: {{ value }}</li>
+            {% endfor %}
+        </ul>
+
+        <h2>List of Student Strengths</h2>
+        <ul>
+            {% for feature, value in highest_3 %}
+                <li>{{ feature }}: {{ value }}</li>
+            {% endfor %}
+        </ul>
+
     </div>
+    
 </body>
 </html>
