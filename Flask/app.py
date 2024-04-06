@@ -166,17 +166,22 @@ dataBase["Performance_SABER_PRO"] = np.select(
         dataBase['Average_Score_SABER_PRO'] >= 80,
         dataBase['Average_Score_SABER_PRO'] >= 70,
         dataBase['Average_Score_SABER_PRO'] >= 60,
-        dataBase['Average_Score_SABER_PRO'] >= 50
+        dataBase['Average_Score_SABER_PRO'] >= 50,
+        dataBase['Average_Score_SABER_PRO'] >= 40, 
+        dataBase['Average_Score_SABER_PRO'] >= 30  
     ],
     [
         'Best',
         'Very Good',
         'Good',
         'Below Average performance',
-        'Student will pass'
+        'Student will pass',
+        'Below Passing Threshold', 
+        'Struggling'                
     ],
     default='Student is under risk of failure, urgent help is needed'
 )
+
 
 dataBase["Average_Score_Saber11"] = dataBase[['MAT_S11', 'CR_S11', 'CC_S11', 'BIO_S11', 'ENG_S11']].mean(axis=1)
 dataBase["Performance_Saber11"] = np.select(
