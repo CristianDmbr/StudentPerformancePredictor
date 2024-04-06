@@ -32,6 +32,7 @@
             border-radius: 10px;
             padding: 20px;
             box-shadow: 0px 0px 10px rgba(49, 33, 33, 0.1);
+            position: relative;
         }
 
         h1 {
@@ -47,11 +48,10 @@
         a.logout {
             background-color: red; /* Set background color to red */
             color: white; /* Set text color to white */
-            display: block;
             padding: 12px;
             border-radius: 8px;
             text-decoration: none;
-            position: absolute;
+            position: fixed;
             top: 10px;
             left: 10px;
         }
@@ -60,15 +60,35 @@
             background-color: #b30000; /* Darken background color on hover */
             color: #fff; /* Keep text color white on hover */
         }
+
+        /* Back to Dashboard button styles */
+        .back-to-dashboard {
+            background-color: green; /* Set background color to green */
+            color: white; /* Set text color to white */
+            padding: 12px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            position: fixed;
+            top: 10px;
+            right: 10px;
+        }
+
+        .back-to-dashboard:hover {
+            background-color: #006600; /* Darken background color on hover */
+            color: #fff; /* Keep text color white on hover */
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <!-- Logout button -->
-        <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+    <!-- Logout button -->
+    <a href="{{ url_for('logout') }}" class="logout">Logout</a>
 
+    <!-- Back to Dashboard button -->
+    <a href="{{ url_for('dashboard') }}" class="back-to-dashboard">Back to Dashboard</a>
+
+    <div class="container">
         <h1>Prediction Result for {{ username }}</h1>
-        <p>The predicted performance of the student is: <strong>{{ prediction }}</strong></p>
+        <p>The predicted performance is: <strong>{{ prediction }}</strong></p>
         
         <h2>List of Student Weaknesses</h2>
         <ul>
