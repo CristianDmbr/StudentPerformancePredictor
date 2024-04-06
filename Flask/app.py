@@ -1,6 +1,6 @@
 from flask import Flask, render_template, url_for, redirect, flash, request
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import UserMixin, LoginManager, login_user, login_required, logout_user
+from flask_login import UserMixin, LoginManager, login_user, login_required, logout_user, current_user
 from flask_wtf import FlaskForm 
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
@@ -76,7 +76,7 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard(): 
-    return render_template('dashboard.html')
+    return render_template('dashboard.html', username=current_user.username) 
 
 @app.route('/logout')
 @login_required
@@ -394,7 +394,7 @@ def result():
         highest_3 = nlargest(3, input_numerical_values.items(), key=lambda x: x[1])
 
         # Pass prediction result and input values to result template
-        return render_template('result.html', prediction=prediction[0], lowest_3=lowest_3, highest_3=highest_3, input_data=input_data.to_dict(orient='records')[0])
+        return render_template('result.html', prediction=prediction[0], lowest_3=lowest_3, highest_3=highest_3, input_data=input_data.to_dict(orient='records')[0], username=current_user.username)
 
 if __name__ == '__main__':
     with app.app_context():
