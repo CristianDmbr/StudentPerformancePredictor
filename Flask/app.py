@@ -130,6 +130,7 @@ def high_school_info():
             return redirect(url_for('university_info'))
     return render_template('high_school_info.html', performance_saber11=performance_saber11)
 
+
 @app.route('/university-info', methods=['GET', 'POST'])
 @login_required
 def university_info():
@@ -394,8 +395,6 @@ def result():
 
         # Pass prediction result and input values to result template
         return render_template('result.html', prediction=prediction[0], lowest_3=lowest_3, highest_3=highest_3, input_data=input_data.to_dict(orient='records')[0])
-
-
 
 if __name__ == '__main__':
     with app.app_context():
