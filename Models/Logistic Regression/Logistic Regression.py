@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
 
 # Load the dataset
 dataBase = pd.read_csv('Database/Academic Database.csv')
@@ -111,11 +111,10 @@ X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
 # Train Logistic Regression model
-logistic_reg = LogisticRegression(C = 0.1,
-                                  max_iter = 200,
-                                  penalty = "l1",
-                                  solver = "liblinear",
-)
+logistic_reg = LogisticRegression(C=0.1, 
+                                max_iter=200,
+                                penalty="l1",
+                                solver="liblinear")
 logistic_reg.fit(X_train_scaled, y_train)
 
 # Prediction variables
@@ -125,17 +124,21 @@ y_pred_test = logistic_reg.predict(X_test_scaled)
 # Metrics
 accuracy_train = accuracy_score(y_train, y_pred_train)
 accuracy_test = accuracy_score(y_test, y_pred_test)
-conf_matrix_train = confusion_matrix(y_train, y_pred_train)
-conf_matrix_test = confusion_matrix(y_test, y_pred_test)
-class_report_train = classification_report(y_train, y_pred_train)
-class_report_test = classification_report(y_test, y_pred_test)
+precision_train, recall_train, f1_score_train, _ = precision_recall_fscore_support(y_train, y_pred_train, average='weighted')
+precision_test, recall_test, f1_score_test, _ = precision_recall_fscore_support(y_test, y_pred_test, average='weighted')
 
 print("\nTraining Metrics:")
-print("Accuracy :", accuracy_train)
-print("Confusion Matrix :\n", conf_matrix_train)
-print("Classification Report :\n", class_report_train)
+print("Accuracy:", accuracy_train)
+print("Precision:", precision_train)
+print("Recall:", recall_train)
+print("F1-Score:", f1_score_train)
+print("Confusion Matrix:\n", confusion_matrix(y_train, y_pred_train))
+print("Classification Report:\n", classification_report(y_train, y_pred_train))
 
 print("\nTesting Metrics:")
-print("Accuracy :", accuracy_test)
-print("Confusion Matrix :\n", conf_matrix_test)
-print("Classification Report :\n", class_report_test)
+print("Accuracy:", accuracy_test)
+print("Precision:", precision_test)
+print("Recall:", recall_test)
+print("F1-Score:", f1_score_test)
+print("Confusion Matrix:\n", confusion_matrix(y_test, y_pred_test))
+print("Classification Report:\n", classification_report(y_test, y_pred_test))

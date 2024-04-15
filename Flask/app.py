@@ -1,7 +1,7 @@
 from flask import Flask, render_template, url_for, redirect, flash, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, LoginManager, login_user, login_required, logout_user, current_user
-from flask_wtf import FlaskForm 
+from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import InputRequired, Length, ValidationError
 from flask_bcrypt import Bcrypt
@@ -10,10 +10,9 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.impute import SimpleImputer
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix, precision_recall_fscore_support
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.tree import DecisionTreeClassifier
 from heapq import nlargest, nsmallest
-import joblib 
+import joblib
 
 app = Flask(__name__, static_url_path='/static')
 bcrypt = Bcrypt(app)
@@ -152,7 +151,7 @@ def university_info():
         return render_template('university_info.html', academic_programs=academic_programs)
 
 
-# Load data and train Random Forest model
+# Load data and train Decision Trees model
 dataBase = pd.read_csv('Database/Academic Database.csv')
 dataBase.drop(columns=['COD_S11', 'COD_SPRO', 'SCHOOL_NAME', 'UNIVERSITY', 'Unnamed: 9'], inplace=True)
 
@@ -249,15 +248,12 @@ scaler = StandardScaler()
 X_train_scaled = scaler.fit_transform(X_train_encoded)
 X_test_scaled = scaler.transform(X_test_encoded)
 
-clf_rf = RandomForestClassifier(bootstrap = False,
-                                max_depth = 20,
-                                min_samples_leaf = 1,
-                                min_samples_split = 5,
-                                n_estimators = 50)
-clf_rf.fit(X_train_scaled, y_train)
+# Train Decision Trees model
+clf_dt = DecisionTreeClassifier()
+clf_dt.fit(X_train_scaled, y_train)
 
-joblib.dump(clf_rf, 'random_forest_model.joblib')
-
+# Save the trained model
+joblib.dump(clf_dt, 'decision_tree_model.joblib')
 
 @app.route('/result', methods=['POST'])
 @login_required
@@ -369,7 +365,7 @@ def result():
         input_data["JOB"].replace({"No":"0 hours per week","0":"0 hours per week"}, inplace=True)
 
         # Load trained model
-        clf_rf = joblib.load('random_forest_model.joblib')
+        clf_dt = joblib.load('decision_tree_model.joblib')
 
         # Preprocess input data
         input_data_encoded = encoder.transform(input_data[categorical_features])
@@ -377,7 +373,7 @@ def result():
         input_data_scaled = scaler.transform(input_data_imputed)
 
         # Make prediction
-        prediction = clf_rf.predict(input_data_scaled)
+        prediction = clf_dt.predict(input_data_scaled)
 
         # Extract lowest and highest numerical inputs
         input_numerical_values = {
