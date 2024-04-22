@@ -10,7 +10,7 @@
 <body>
     <h1>Socioeconomic Information Form</h1>
     <form action="{{ url_for('high_school_info') }}" method="POST">
-        <label for="stratum">Stratum (Residential areas based on socioeconomic level) :</label>
+        <label for="stratum">Residential areas based on socioeconomic level:</label>
         <select id="stratum" name="stratum">
             <option value="1">Stratum 1</option>
             <option value="2">Stratum 2</option>
@@ -20,7 +20,7 @@
             <option value="6">Stratum 6</option>
         </select><br><br>
 
-        <label for="sisben">SISBEN (System for social assistance) :</label>
+        <label for="sisben">System for social assistance:</label>
         <select id="sisben" name="sisben">
             <option value="Level 1">Level 1</option>
             <option value="Level 2">Level 2</option>
@@ -91,7 +91,7 @@
             <option value="No">No</option>
         </select><br><br>
 
-        <label for="family_revenue">Family Revenue LMMW (Legal Minimum Monthly Wage):</label>
+        <label for="family_revenue">Family Revenue based on Legal Minimum Monthly Wage:</label>
         <select id="family_revenue" name="family_revenue">
             <option value="0">0</option>
             <option value="less than 1 LMMW">Less than 1 LMMW</option>
